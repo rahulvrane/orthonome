@@ -1,0 +1,6 @@
+add the following  2 lines to all *.cpp files
+
+#include <cstdlib>
+#include <algorithm>
+
+g++ <CPP FILE> -o <OUTPUT>
