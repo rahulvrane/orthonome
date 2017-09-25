@@ -3,12 +3,12 @@
 
 CC = g++
 
-all: mapToPhylip familySeparator addOutgroup getTopHits postprocessing removeInparalogs normalizeScores tagGenerator treeTran
+all: mapToPhylip familyAssembler addOutgroup postprocessing removeInparalogs normalizeScores tagGenerator treeTran
 
 mapToPhylip:
 	$(CC)  MapToPhylip.cpp -o mapToPhylip
 
-familySeparator:
+familyAssembler:
 	$(CC)  FamilyAssembler.cpp -o familyAssembler
 
 addOutgroup:
