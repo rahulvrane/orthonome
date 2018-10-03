@@ -1,12 +1,10 @@
 # README #
 
-Source-code available at: [Click here!](https://bitbucket.org/rahulvrane/orthonome/src)
+Please cite: Rane, RV, Oakeshott, JG, Nguyen, T., Hoffmann, AA, & Lee, SF (2017). Ortho-a new pipeline for predicting high quality orthologous gene sets applicable to complete and draft genomes. BMC genomics , 18 (1), 673. 
 
+https://doi.org/10.1186/s12864-017-4079-6
 
-Wiki: https://bitbucket.org/rahulvrane/orthonome/wiki
-
-
-For searchable Drosophila orthologue predictions please visit http://www.orthonome.com 
+For searchable Drosophila orthologue predictions for 20 Flybase + modENCODE genomes please visit http://www.orthonome.com 
 
 
 ### Who do I talk to? ###
