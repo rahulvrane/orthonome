@@ -1,24 +1,17 @@
-#!/bin/env python
 from collections import defaultdict
 from Bio.Alphabet import generic_nucleotide
 from Bio.Seq import Seq
-import re, sys
+import re
+import sys
 from tqdm import tqdm
-"""
-#Before this, run:
-gffread PRF_ncbi.gff -g PRF_genome.fasta -x PRF.cds
 
-grep ">" PRF.cds |tr ' ' '\t'|sort -k2,2 -u|cut -f1|tr -d ">" > PRF.idx
-#
-
-#
-"""
+#!/usr/bin/env python3
 
 def FASTA(filename):
     try:
-        f = file(filename)
+        f = open(filename)
     except IOError:
-        print "The file, %s, does not exist" % filename
+        print("The file, %s, does not exist" % filename)
         return
 
     order = []
@@ -26,8 +19,7 @@ def FASTA(filename):
 
     for line in tqdm(f):
         if line.startswith('>'):
-            name = line[1:].rstrip('\n') #re.split("\s",line[1:].rstrip('\n'))[0]
-            #name = name.replace('_', ' ')
+            name = line[1:].rstrip('\n')
             order.append(name)
             sequences[name] = ''
         else:
