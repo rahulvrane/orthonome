@@ -2,7 +2,7 @@
 from collections import defaultdict
 from Bio.Alphabet import generic_nucleotide
 from Bio.Seq import Seq
-import re
+import re, sys
 from tqdm import tqdm
 """
 #Before this, run:
@@ -24,7 +24,7 @@ def FASTA(filename):
     order = []
     sequences = {}
 
-    for line in f:
+    for line in tqdm(f):
         if line.startswith('>'):
             name = line[1:].rstrip('\n') #re.split("\s",line[1:].rstrip('\n'))[0]
             #name = name.replace('_', ' ')
@@ -65,8 +65,8 @@ def parse_gff(gffile):
     
 def ret_break(s):
     a,b = re.split("\s",s)[:2]
-    b1 = b.split("=")[1]
-    return a, b1
+#    b1 = b.split("=")[1]
+    return a, b
 
 def main():
     prf = sys.argv[1]
@@ -84,14 +84,19 @@ def main():
     print("Total seqs = %d" % len(spp_cds))
     
     #Get the list of RNA we want to keep
-    idxs = set([line.strip() for line in open(prf+".idx").readlines()])
+    idxs = set([line.strip().split(" ")[0] for line in open(prf+".idx").readlines()])
     
     #Start the selection process 
     print("Total selected seqs = %d" % len(idxs))
-    
+    print(list(idxs)[0:10])
+    print(spp_cds.keys()[:10])
+
+
+
+
     spp_cds_sel = {}
     for k, v in tqdm(spp_cds.items()):
-        if re.split("\s",k)[0] in idxs:
+        if re.split("\t",k)[0] in idxs:
             spp_cds_sel[k] = v
     print("Total selected seqs extracted = %d" % len(spp_cds_sel))
     
@@ -105,9 +110,13 @@ def main():
     for k, v in tqdm(spp_cds_sel.items()):
         rna, gene = ret_break(k)
         pc = "%s_%s_%s" % (prf, gene, rna)
-        nuc.write(">%s\n%s\n" % (pc,v))
-        pep.write(">%s\n%s\n" % (pc,str(Seq(v,generic_nucleotide).translate())))
-        preinfo.write("%s\n" % "\t".join([pc,pc,gff_info[gene]])) 
+
+        if gene in gff_info.keys():
+            nuc.write(">%s\n%s\n" % (pc,v))
+            pep.write(">%s\n%s\n" % (pc,str(Seq(v,generic_nucleotide).translate())))
+            preinfo.write("%s\n" % "\t".join([pc,pc,gff_info[gene]])) 
+        else:
+            print("%s not found in the valid gene list. could be a pseudogene classification. excluded from analysis" % gene)
     
     nuc.close()
     pep.close()

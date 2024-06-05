@@ -6,7 +6,7 @@
 #**********************************************# 
 
 CC = g++
-FLAGS = -g -Wall 
+FLAGS = -g -Wall -fPIE 
 
 MSOAR: main.o RelatedGenomes.o CompleteGraph.o PairmatchGraph.o
 	$(CC) $(FLAGS) main.o RelatedGenomes.o CompleteGraph.o PairmatchGraph.o -o MSOAR

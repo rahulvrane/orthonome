@@ -20,7 +20,7 @@
 # 
  
 #!/bin/bash
-
+set -e 
 if [ $# != 11 ]; then
 	echo "<Usage>: Process_Species_pairs.sh G1.pep G2.pep G1.nuc G2.nuc G1.info G2.info Spp1,Spp2 Spp_1_index Spp_2_index THREADS [msprep?]"
 	exit
@@ -122,14 +122,14 @@ echo [`date`]:"Family data separated for $NumOfFamilies families"
 parallel --gnu -j"$THRDS" $_DIR/Programs/process_families.sh {} ::: `seq $NumOfFamilies` 1>famile_proc.log 2>famile_proc.err
 
 echo [`date`]:"$NumOfFamilies families processed"
-rm -f TAGs 
+#rm -f TAGs 
 
 if [ $NumOfFamilies -ne 0 ]; then
 	cat Families/gf*.tags > TAGs
 else
 	touch TAGs
 fi
-touch family_process.success && rm -fr Families
+touch family_process.success # && rm -fr Families
 else
 echo [`date`]:"Family data processed"
 cp Results/TAGs .

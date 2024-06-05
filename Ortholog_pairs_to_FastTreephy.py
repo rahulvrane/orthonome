@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python 
 
 #  Copyright 2014 - 2017 Rahul Vivek Rane <rahulvrane@gmail.com>
 #  
@@ -73,7 +73,7 @@ def FASTA(filename):
     try:
         f = file(filename)
     except IOError:  
-        print "The file, %s, does not exist" % filename
+        print("The file, %s, does not exist" % filename)
         return
 
     order = []
@@ -343,7 +343,7 @@ def main():
     """
     FILE1=open(args.genelist).readlines()
     
-    print ODIR
+    print(ODIR)
 
     spp = []
     gene_dict = {} #DICT{GENE:SPP}

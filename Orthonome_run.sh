@@ -98,6 +98,7 @@ foo="makeblastdb";command -v $foo >/dev/null 2>&1 || { echo >&2 "I require '$foo
 foo="blastp";command -v $foo >/dev/null 2>&1 || { echo >&2 "I require '$foo' but it's not installed.  Aborting."; exit 1; }
 foo="ssearch36";command -v $foo >/dev/null 2>&1 || { echo >&2 "I require '$foo' but it's not installed.  Aborting."; exit 1; }
 foo="parallel";command -v $foo >/dev/null 2>&1 || { echo >&2 "I require '$foo' but it's not installed.  Aborting."; exit 1; }
+foo="diamond";command -v $foo >/dev/null 2>&1 || { echo >&2 "I require '$foo' but it's not installed.  Aborting."; exit 1; }
 #$foo="mafft";command -v $foo >/dev/null 2>&1 || { echo >&2 "I require $foo but it's not installed.  Aborting."; exit 1; }
 
 
@@ -105,14 +106,14 @@ foo="parallel";command -v $foo >/dev/null 2>&1 || { echo >&2 "I require '$foo' b
 echo "${GREEN}[`date`]${NC}: Inspecting inputs"
 
 for f in *.preinfo; do 
-    $_DIR/modify_info.py $f > ${f%%.preinfo}.info
+    python $_DIR/modify_info.py $f > ${f%%.preinfo}.info
 done
 
 #
 
 for pr in `cat $FILE`; do 
     for suf in pep nuc info; do
-        if [[-s $pr.$suf]];
+        if [[-s $pr.$suf]]; then
             echo "${GREEN}[`date`]${NC}: $pr.$suf OK"
         else:
             echo "${RED}[`date`]${NC}: ERROR: $pr.$suf is empty. Please check input"
@@ -127,13 +128,30 @@ done
 echo "${GREEN}[`date`]${NC}: Generating Blast databases" 
 mkdir -p $WKDIR/blast_pairs
 cd $WKDIR/blast_pairs
-parallel --gnu -j$THR 'makeblastdb -in ../{}.pep -dbtype prot -out {}' :::: $WKDIR/$FILE
+#parallel --gnu -j$THR 'makeblastdb -in ../{}.pep -dbtype prot -out {}' :::: $WKDIR/$FILE
+
+#run diamond makedb
+parallel --gnu -j$THR 'diamond makedb --in ../{}.pep --db {}' :::: $WKDIR/$FILE
 
 echo "${GREEN}[`date`]${NC}: Running blastp runs" 
 
-ln -s $_DIR/blast_runner.sh .
 
-parallel --gnu -j1 --bar 'bash blast_runner.sh {1} {2} {3} {4}' :::: $WKDIR/$FILE :::: $WKDIR/$FILE ::: $THR ::: `pwd`
+
+#ln -s $_DIR/blast_runner.sh .
+
+#parallel --gnu -j1 --bar 'bash blast_runner.sh {1} {2} {3} {4}' :::: $WKDIR/$FILE :::: $WKDIR/$FILE ::: $THR ::: `pwd`
+#run diamond blastp comparisons
+#parallel --gnu -j1 --bar 'diamond blastp --query ../{1}.pep --db {2} --outfmt 6 --out {1}_{2}.blastp --threads {3} && touch {1}_{2}.success' :::: $WKDIR/$FILE :::: $WKDIR/$FILE ::: $THR
+
+for x in `cat $WKDIR/$FILE`; do 
+    for y in `cat $WKDIR/$FILE`; do
+        #$_DIR/blast_runner.sh $x $y $THR `pwd`
+        if [ ! -f $x"_"$y".success" ];
+        then
+            parallel --gnu -j1 --bar 'diamond blastp --query ../{1}.pep --db {2} --outfmt 6 --out {1}_{2}.blastp --threads {3} && touch {1}_{2}.success' ::: $x  ::: $y ::: $THR
+        fi
+    done
+done
 
 for x in `cat $WKDIR/$FILE`; do 
     for y in `cat $WKDIR/$FILE`; do
@@ -142,6 +160,8 @@ for x in `cat $WKDIR/$FILE`; do
         then
             echo "${RED}[`date`]${NC}: ERROR: Blast run between $x and $y failed"
             exit 1
+        else
+            echo "${GREEN}[`date`]${NC}: Blast run between $x and $y successfully completed."
         fi
     done
 done
@@ -164,7 +184,17 @@ echo "${GREEN}[`date`]${NC}: Running Smith-Waterman alignments between species"
 
 ln -s $_DIR/sw_runner.sh .
 
-parallel --gnu -j1 --bar 'bash sw_runner.sh {1} {2} {3} {4}' :::: $WKDIR/$FILE :::: $WKDIR/$FILE ::: $THR ::: `pwd`
+#parallel --gnu -j1 --bar 'bash sw_runner.sh {1} {2} {3} {4}' :::: $WKDIR/$FILE :::: $WKDIR/$FILE ::: $THR ::: `pwd`
+
+for x in `cat $WKDIR/$FILE`; do 
+    for y in `cat $WKDIR/$FILE`; do
+        #$_DIR/blast_runner.sh $x $y $THR `pwd`
+        if [ ! -f $x"_"$y".success" ];
+        then
+            parallel --gnu -j1 --bar 'bash sw_runner.sh {1} {2} {3} {4}' ::: $x ::: $y ::: $THR ::: `pwd`
+        fi
+    done
+done
 
 for x in `cat $WKDIR/$FILE`; do 
     for y in `cat $WKDIR/$FILE`; do
@@ -173,6 +203,8 @@ for x in `cat $WKDIR/$FILE`; do
         then
             echo "${RED}[`date`]${NC}: ERROR: Smith-Waterman run between $x and $y failed"
             exit 1
+        else
+            echo "${GREEN}[`date`]${NC}: Smith-Waterman run between $x and $y successfully completed."
         fi
     done
 done
@@ -239,7 +271,7 @@ cd $WKDIR/MultiMSOAR_inputs
 
 echo "${GREEN}[`date`]${NC}: Generating consensus phylogeny using pairwise orthologues"
 
-$_DIR/Ortholog_pairs_to_FastTreephy.py -l $WKDIR/genelists.txt -g $WKDIR/MultiMSOAR_inputs/ -p $WKDIR -n $WKDIR -t $THR 
+python $_DIR/Ortholog_pairs_to_FastTreephy.py -l $WKDIR/genelists.txt -g $WKDIR/MultiMSOAR_inputs/ -p $WKDIR -n $WKDIR -t $THR 
 
 ################################################################################
 if [ ! -s CONCAT_align_nuc.nwk ];then
@@ -260,6 +292,6 @@ echo "${GREEN}[`date`]${NC}: Running MultiMSOAR"
 $_DIR/MultiMSOAR `wc -l $WKDIR/$FILE||awk '{print $1}'` Tree $WKDIR/blast_pairs/Allruns.clusters Geneinfo Orthogroups 
 
 echo "${GREEN}[`date`]${NC}: Creating final Orthonome output"
-$_DIR/summarise_orthogroups_internet_OUT.py -l genelists.txt -m $WKDIR/blast_pairs/Allruns.clusters -i GeneInfo -g OrthoGroups -s $WKDIR/Spp_list.idx -o Orthonome_out
+python $_DIR/summarise_orthogroups_internet_OUT.py -l genelists.txt -m $WKDIR/blast_pairs/Allruns.clusters -i GeneInfo -g OrthoGroups -s $WKDIR/Spp_list.idx -o Orthonome_out
 
 echo "${GREEN}[`date`]${NC}: All done!"
