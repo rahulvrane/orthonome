@@ -4,7 +4,7 @@ from tqdm import tqdm
 
 # Function to convert the original headers to the simplified format
 def convert_headers(header):
-    protein_id_match = re.search(r"\[protein_id=(XP_\d+\.\d+)\]", header)
+    protein_id_match = re.search(r"\[protein_id=([XY]P_\d+\.\d+)\]", header)
     gene_match = re.search(r"\[gene=([^\]]+)\]", header)
     
     if protein_id_match and gene_match:
@@ -16,6 +16,10 @@ def convert_headers(header):
 
 # Function to process a FASTA file
 def process_fasta_file(input_file, output_file):
+    total_genes = 0
+    xp_genes = 0
+    yp_genes = 0
+    
     with open(input_file, 'r') as infile, open(output_file, 'w') as outfile:
         for line in tqdm(infile):
             if line.startswith('>'):
@@ -23,8 +27,21 @@ def process_fasta_file(input_file, output_file):
 #                print(modified_header)
                 if modified_header:
                     outfile.write(modified_header + '\n')
+                    total_genes += 1
+                    
+                    # Count genes by prefix
+                    if "XP_" in modified_header:
+                        xp_genes += 1
+                    elif "YP_" in modified_header:
+                        yp_genes += 1
             else:
                 outfile.write(line)
+    
+    # Print gene counts
+    print(f"\nGene counts:")
+    print(f"Total genes processed: {total_genes}")
+    print(f"Nuclear genes (XP_): {xp_genes}")
+    print(f"Mitochondrial genes (YP_): {yp_genes}")
 
 # Check if the correct number of arguments are provided
 if len(sys.argv) != 3:
