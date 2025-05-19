@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python
 
 """"  modify_info.py <info_file>
 #  Method 1: Take info files and change the CHR field to comply with MSOAR2
@@ -49,14 +49,14 @@ FILEX=FILE.readlines()
 list_CHR = list(set(FILEX[x].split()[2] for x in range(0,len(FILEX))))
 list_CHR_sorted = natsort.natsorted(list_CHR, reverse=False)
 dict_CHR = {}
-#print(list_CHR_sorted) #LIST IS OK
+#print list_CHR_sorted #LIST IS OK
 
 for x in range(1,len(list_CHR_sorted)+1):
     CHR_item = list_CHR_sorted[x-1]
     dict_CHR[CHR_item] = "chr" + str(x)
-#print(dict_CHR.items())  #DICT IS OK
+#print dict_CHR.items()  #DICT IS OK
 
-if any(chrom in list_CHR_sorted for chrom in ['2L', '2R', '3L', '3R']):
+if '2L' or '2R' or '3R' or '3L' in list_CHR_sorted:
     dmel_chrs = 'True'
 else:
     dmel_chrs = 'False'

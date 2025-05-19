@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python 
 
 #  Copyright 2014 - 2017 Rahul Vivek Rane <rahulvrane@gmail.com>
 #  
@@ -32,7 +32,7 @@ import sys
 import numpy
 import subprocess #used to call unix shell command (subprocess.call())
 import os #OS routines
-# import sys # Redundant import
+import sys 
 import shutil # module for copying and archiving (gz etc)
 import itertools 
 import string
@@ -71,9 +71,9 @@ def remove_files(list_to_remove):
 
 def FASTA(filename):
     try:
-        f = open(filename)
+        f = file(filename)
     except IOError:  
-        print(("The file, %s, does not exist" % filename))
+        print("The file, %s, does not exist" % filename)
         return
 
     order = []
@@ -343,6 +343,8 @@ def main():
     """
     FILE1=open(args.genelist).readlines()
     
+    print(ODIR)
+
     spp = []
     gene_dict = {} #DICT{GENE:SPP}
 
@@ -411,7 +413,7 @@ def main():
         sys.stdout.write("[LOG:]     " + TIMESTAMP(time.time()) + ": dynamic ortholog length distribution filter switched ON.\n")
     for line in MCL_FILE:
         # if PMX == 0:
-            # print(line)
+            # print line
         
         listor = line.strip().split("\t")
         if len(listor) == NUMSPP:

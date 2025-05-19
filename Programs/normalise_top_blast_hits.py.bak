@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/bin/python
 
 '''
 Usage: normalise_top_blast_hits_ssw.py [G1G2.blastp] [G1G2.blastp] [G1G2.SWscore] [G1G2.SWscore]
@@ -20,9 +20,10 @@ def usage():
     sys.exit(1)
     
 #
-# def usage():  # This function is defined twice, removing the second instance.
-#     sys.stderr.write(__doc__)
-#     sys.exit(1)
+
+def usage():
+    sys.stderr.write(__doc__)
+    sys.exit(1)
 ## MATH FUNCTIONS
 
 def calc_median(lst):
@@ -116,9 +117,9 @@ def gene_length_filter(gene_list, PEP_LEN_DICT):
 #
 def FASTA(filename):
     try:
-        f = open(filename)
+        f = file(filename)
     except IOError:  
-        print(("The file, %s, does not exist" % filename))
+        print "The file, %s, does not exist" % filename
         return
 
     order = []
@@ -201,7 +202,7 @@ def process_hits(FILE,SWDIR,OUTF):
         f = open(FILE).readlines()
         sys.stdout.write("opened FILE %s \n " % FILE)
     except IOError:
-        print(("The file, %s, does not exist" % FILE))
+        print "The file, %s, does not exist" % FILE
         return
     dirMatches = {} #Directory of all targets for any given query. Used to check for duplicate blast scores
     dirResults = {} #The actual results
@@ -264,7 +265,7 @@ def process_sw_hits(FILE,OUTF):
         f = open(FILE).readlines()
         sys.stdout.write("opened FILE %s \n " % FILE)
     except IOError:
-        print(("The file, %s, does not exist" % FILE))
+        print "The file, %s, does not exist" % FILE
         return
     dirMatches = {}
     QID = ''
@@ -305,9 +306,9 @@ SFIN2 = sys.argv[4]
 # SWIN2 = open(SFIN2).readlines()
 
 sw1M = process_sw_hits(SFIN1,"G1ToG2.SW")
-#print("Successfully parsed " + SFIN1)
+#print "Successfully parsed " + SFIN1
 sw2M = process_sw_hits(SFIN2,"G2ToG1.SW")
-#print("Successfully parsed " + SFIN2)
+#print "Successfully parsed " + SFIN2
 
 bl1q,bl1M,bl1R,bl1out = process_hits(BFIN1,sw1M,"G1ToG2.top")
 bl2q,bl2M,bl2R,bl2out = process_hits(BFIN2,sw2M,"G2ToG1.top")

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python
 #
 #  Copyright 2014 - 2017 Rahul Vivek Rane <rahulvrane@gmail.com>
 #  
@@ -44,7 +44,7 @@ import string
 import argparse
 
 def proc_blast(all_blast,listBirths,output_prefix):
-    print(("#\nopening blast input file:" + str(all_blast)))
+    print("#\nopening blast input file:" + str(all_blast))
 
     output_blastp = open(output_prefix + "Genebirths_all_proteins.blastp", 'w')
     output_blastpx = open(output_prefix + "Genebirths_strictly_births.blastp", 'w')
@@ -78,7 +78,7 @@ def proc_blast(all_blast,listBirths,output_prefix):
     sys.stdout.write("\r All Blast input parsed : %d hits for Orphan Gene Births, with %d strictly between Orphans " % (N,NX))
     sys.stdout.flush()
 
-    print(("#\nPrinting Genebirths + blastp scores out to file: Genebirths_all_proteins.blastp - AND - Genebirths_strictly_births.blastp"))
+    print("#\nPrinting Genebirths + blastp scores out to file: Genebirths_all_proteins.blastp - AND - Genebirths_strictly_births.blastp")
 
 
     for line_item in FILEXR:
@@ -87,7 +87,7 @@ def proc_blast(all_blast,listBirths,output_prefix):
     for line_item in ONLY_BIRTHS:
         output_blastpx.write("\t".join(line_item) + "\n")
 
-    print(("#\nBlastp output created for records classified as GeneBirths for further use"))
+    print("#\nBlastp output created for records classified as GeneBirths for further use")
 
 def main():
     class MyParser(argparse.ArgumentParser):
@@ -158,14 +158,14 @@ def main():
     for line in Fspdx:
         if len(line.split())>1:
             spidx[line.strip("_").split()[0]] = line.strip("_").split()[1]
-    print(("#\ntotal number of species catalogued:" + str(len(spp))))
-    print(("#\nTotal genes in gene_dict =" + str(len(gene_dict))))
+    print("#\ntotal number of species catalogued:" + str(len(spp)))
+    print("#\nTotal genes in gene_dict =" + str(len(gene_dict)))
     ########################################################
     
     """
     Parse the MCL clusters 
     """
-    print(("Opening MCL file: %s" % args.mcl_clusters))
+    print("Opening MCL file: %s" % args.mcl_clusters)
     MCL_FILE=open(args.mcl_clusters)
     MK_CLUSTERS = []
     
@@ -173,7 +173,7 @@ def main():
         MK_CLUSTERS.append(line)
     
     SUPERGROUP_COUNT = len(MK_CLUSTERS)
-    print(("#\nTotal Ortholog supergroups =" + str(SUPERGROUP_COUNT)))
+    print("#\nTotal Ortholog supergroups =" + str(SUPERGROUP_COUNT))
     
     SUPER_GROUP = {} # DICT{GENE(FBgnXXYYAHH):SOG_ID(ABCD)}
     SUPERGROUP_LIST = []
@@ -189,7 +189,7 @@ def main():
             SUPER_GROUP[x] = SOG_ID
             NX = NX + 1
             
-    print(("#\nParsed MCL file with %d genes in clusters/singletons" % NX))
+    print("#\nParsed MCL file with %d genes in clusters/singletons" % NX)
 
             
     
@@ -278,7 +278,7 @@ def main():
     SUP_NON_ORTH_OUTS['dups'] = add_lengths_sog_class(SUP_dups,'DUP')
     SUP_NON_ORTH_OUTS['births'] = add_lengths_sog_class(SUP_births,'DNV')
         
-    print(("#\nGeneinfo parsed and output files created: Genebirths.txt & GeneDuplications.txt"))
+    print("#\nGeneinfo parsed and output files created: Genebirths.txt & GeneDuplications.txt")
         
     ######################################################## 
     """
@@ -305,7 +305,7 @@ def main():
         SUP_orth[f].append(listx)
     
     OrthGrpFILE = open(args.orthogroups).readlines()
-    print(("#\nOpening Orthogroups file: " + str(args.orthogroups)))
+    print("#\nOpening Orthogroups file: " + str(args.orthogroups))
 
     
     #sog_id = SUPER_GROUP[gene] to fill up DICT ->SUP_orth
@@ -390,7 +390,7 @@ def main():
                 OrthoGrp_web_out.write('\t'.join([str(ort[0]),str(ort[2]),"#",str(ort[3]),g,str(NXN)]) + "\n")
                 NXN = NXN+1
 
-    print(("#\nTabulated Orthogroup file created for further use with gene order :" + str(args.output_prefix) + "_tabulated.tab"))
+    print("#\nTabulated Orthogroup file created for further use with gene order :" + str(args.output_prefix) + "_tabulated.tab")
 
     ######################################################## 
     """
@@ -399,7 +399,7 @@ def main():
     if args.all_blast:
         proc_blast(args.all_blast,list_births,args.output_prefix)
     else:
-        print(("No blast file provided - skipping blast output scanning\n"))
+        print("No blast file provided - skipping blast output scanning\n")
     
     ######################################################## 
 

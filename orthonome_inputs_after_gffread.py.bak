@@ -1,16 +1,17 @@
-#!/usr/bin/env python3
 from collections import defaultdict
-# from Bio.Alphabet import generic_nucleotide # Bio.Alphabet is removed in Biopython > 1.78
+from Bio.Alphabet import generic_nucleotide
 from Bio.Seq import Seq
 import re
 import sys
 from tqdm import tqdm
 
+#!/usr/bin/env python3
+
 def FASTA(filename):
     try:
         f = open(filename)
     except IOError:
-        print(("The file, %s, does not exist" % filename))
+        print("The file, %s, does not exist" % filename)
         return
 
     order = []
@@ -44,7 +45,7 @@ def parse_gff(gffile):
                     name = dumdict["gene"].split("%")[0]
                     gff_feats[name] = "%s\t%s\t%s" % (chr, phase, start)
                 except:
-                    print(("failed on line: %s" % line))
+                    print("failed on line: %s" % line)
             elif linel[2] == "mRNA":
                 # characterise all descriptions to grab the 'Name'
                 dumdict = {}
@@ -80,7 +81,7 @@ def main():
     #Start the selection process 
     print("Total selected seqs = %d" % len(idxs))
     print(list(idxs)[0:10])
-    print(list(spp_cds.keys())[:10]) # Convert keys view to list before slicing
+    print(spp_cds.keys()[:10])
 
 
 
@@ -104,10 +105,10 @@ def main():
 
         if gene in gff_info.keys():
             nuc.write(">%s\n%s\n" % (pc,v))
-            pep.write(">%s\n%s\n" % (pc,str(Seq(v).translate()))) # Removed generic_nucleotide
+            pep.write(">%s\n%s\n" % (pc,str(Seq(v,generic_nucleotide).translate())))
             preinfo.write("%s\n" % "\t".join([pc,pc,gff_info[gene]])) 
         else:
-            print(("%s not found in the valid gene list. could be a pseudogene classification. excluded from analysis" % gene))
+            print("%s not found in the valid gene list. could be a pseudogene classification. excluded from analysis" % gene)
     
     nuc.close()
     pep.close()

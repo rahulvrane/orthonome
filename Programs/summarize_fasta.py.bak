@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/bin/python
 
 """
 This program will summarize fasta files for sequence length. 
@@ -15,9 +15,9 @@ def mean(lst):
 
 def FASTA(filename):
   try:
-    f = open(filename)
+    f = file(filename)
   except IOError:                     
-    print(("The file, %s, does not exist" % filename))
+    print "The file, %s, does not exist" % filename
     return
 
   order = []
@@ -40,11 +40,11 @@ seqs = FASTA(sys.argv[1])
 for f in seqs.keys():
     lengths[f] = len(seqs[f])
     
-vals = list(lengths.values()) # Convert view to list for Python 3 compatibility with numpy functions if needed, though direct usage might also work.
-#print(vals)
-med, avg, total,max_len,min_len = median(vals), mean(vals), len(vals),max(vals),min(vals) # Renamed max/min to avoid conflict with builtins
-print(("median = " + str(med)))
-print(("mean = " + str(avg)))
-print(("sequences = " + str(total)))
-print(("Max Length = " + str(max_len)))
-print(("Min Length = " + str(min_len)))
+vals = lengths.values()
+#print vals
+med, avg, total,max,min = median(vals), mean(vals), len(vals),max(vals),min(vals)
+print("median = " + str(med))
+print("mean = " + str(avg))
+print("sequences = " + str(total))
+print("Max Length = " + str(max))
+print("Min Length = " + str(min))
