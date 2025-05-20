@@ -112,7 +112,7 @@ def prepare_inputs_cmd(ctx):
     click.echo("Validating input files...")
     try:
         with open(species_prefix_file, 'r') as f:
-            species_prefixes_list = [line.strip() for line in f if line.strip()] # Renamed to avoid conflict
+            species_prefixes_list = [line.strip() for line in f if line.strip()] 
     except IOError as e:
         click.echo(f"Error reading species prefix file '{species_prefix_file}': {e}", file=sys.stderr)
         raise click.Abort()
@@ -501,7 +501,7 @@ def generate_phylogeny_cmd(ctx):
         click.echo(f"Error reading species prefix file '{species_prefix_file_abs_path}': {e}", file=sys.stderr)
         raise click.Abort()
 
-    command_phylogeny = [ # Renamed to avoid conflict
+    command_phylogeny = [ 
         sys.executable, script_path,
         "-l", genelists_path,
         "-g", multi_msoar_inputs_dir + "/", 
@@ -556,12 +556,11 @@ def run_multimsoar_summarize_cmd(ctx):
     species_prefix_file_abs_path = os.path.abspath(ctx.obj['species_prefix_file'])
     work_dir = ctx.obj['work_dir']
     orthonome_dir = ctx.obj['orthonome_dir']
-    # threads = ctx.obj['threads'] # Not directly used by MultiMSOAR or summarise script, but good to have if needed
-
+    
     click.echo("Starting MultiMSOAR and summarization...")
 
     multi_msoar_inputs_dir = os.path.join(work_dir, "MultiMSOAR_inputs")
-    blast_pairs_dir = os.path.join(work_dir, "blast_pairs") # For Allruns.clusters
+    blast_pairs_dir = os.path.join(work_dir, "blast_pairs") 
 
     if not os.path.isdir(multi_msoar_inputs_dir):
         click.echo(f"Error: Directory '{multi_msoar_inputs_dir}' not found. Please run prerequisite steps.", file=sys.stderr)
@@ -570,8 +569,7 @@ def run_multimsoar_summarize_cmd(ctx):
         click.echo(f"Error: Directory '{blast_pairs_dir}' not found. Please run 'run-diamond-blast' first.", file=sys.stderr)
         raise click.Abort()
 
-    # Run MultiMSOAR
-    multimsoar_exe_path = os.path.join(orthonome_dir, "Programs", "MultiMSOAR") # Corrected path
+    multimsoar_exe_path = os.path.join(orthonome_dir, "Programs", "MultiMSOAR") 
     if not os.path.exists(multimsoar_exe_path):
         click.echo(f"Error: MultiMSOAR executable not found at '{multimsoar_exe_path}'.", file=sys.stderr)
         raise click.Abort()
@@ -592,10 +590,9 @@ def run_multimsoar_summarize_cmd(ctx):
 
     tree_file_path = os.path.join(multi_msoar_inputs_dir, "Tree")
     clusters_file_path = os.path.join(blast_pairs_dir, "Allruns.clusters")
-    geneinfo_output_path = os.path.join(multi_msoar_inputs_dir, "Geneinfo") # Output file name
-    orthogroups_output_path = os.path.join(multi_msoar_inputs_dir, "Orthogroups") # Output file name
+    geneinfo_output_path = os.path.join(multi_msoar_inputs_dir, "Geneinfo") 
+    orthogroups_output_path = os.path.join(multi_msoar_inputs_dir, "Orthogroups") 
     
-    # Ensure prerequisite files for MultiMSOAR exist
     if not os.path.exists(tree_file_path):
         click.echo(f"Error: Tree file '{tree_file_path}' not found. Please run 'generate-phylogeny' first.", file=sys.stderr)
         raise click.Abort()
@@ -603,14 +600,13 @@ def run_multimsoar_summarize_cmd(ctx):
         click.echo(f"Error: Clusters file '{clusters_file_path}' not found. Please run 'run-diamond-blast' first.", file=sys.stderr)
         raise click.Abort()
 
-
     multimsoar_command = [
         multimsoar_exe_path,
         str(num_species),
-        "Tree", # Relative to CWD (multi_msoar_inputs_dir)
-        os.path.relpath(clusters_file_path, multi_msoar_inputs_dir), # Relative path for clusters
-        "Geneinfo", # Output, relative to CWD
-        "Orthogroups" # Output, relative to CWD
+        "Tree", 
+        os.path.relpath(clusters_file_path, multi_msoar_inputs_dir), 
+        "Geneinfo", 
+        "Orthogroups" 
     ]
     click.echo(f"Running MultiMSOAR in {multi_msoar_inputs_dir}...")
     click.echo(f"Command: {' '.join(multimsoar_command)}")
@@ -626,7 +622,6 @@ def run_multimsoar_summarize_cmd(ctx):
         click.echo(f"  Stderr: {e.stderr}", file=sys.stderr)
         raise click.Abort()
 
-    # Run summarise_orthogroups_internet_OUT.py
     summarize_script_path = os.path.join(orthonome_dir, "summarise_orthogroups_internet_OUT.py")
     if not os.path.exists(summarize_script_path):
         click.echo(f"Error: Script 'summarise_orthogroups_internet_OUT.py' not found at '{summarize_script_path}'.", file=sys.stderr)
@@ -634,22 +629,20 @@ def run_multimsoar_summarize_cmd(ctx):
 
     genelists_path = os.path.join(work_dir, "genelists.txt")
     spp_list_idx_path = os.path.join(work_dir, "Spp_list.idx")
-    output_prefix_path = os.path.join(work_dir, "Orthonome_out") # This is a prefix, script will add extensions.
+    output_prefix_path = os.path.join(work_dir, "Orthonome_out") 
 
     summarize_command = [
         sys.executable, summarize_script_path,
         "-l", genelists_path,
-        "-m", clusters_file_path, # Allruns.clusters from blast_pairs_dir
-        "-i", geneinfo_output_path, # Geneinfo from multi_msoar_inputs_dir
-        "-g", orthogroups_output_path, # Orthogroups from multi_msoar_inputs_dir
+        "-m", clusters_file_path, 
+        "-i", geneinfo_output_path, 
+        "-g", orthogroups_output_path, 
         "-s", spp_list_idx_path,
         "-o", output_prefix_path
     ]
     click.echo("Running orthogroup summarization...")
     click.echo(f"Command: {' '.join(summarize_command)}")
     try:
-        # The original script seems to expect to be run from where the output files should land,
-        # or paths should be relative to its CWD. Running from work_dir for simplicity.
         result_summarize = subprocess.run(summarize_command, cwd=work_dir, check=True,
                                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         click.echo("Orthogroup summarization completed successfully.")
@@ -662,6 +655,23 @@ def run_multimsoar_summarize_cmd(ctx):
         raise click.Abort()
         
     click.echo("run-multimsoar-and-summarize subcommand completed successfully.")
+
+@main_group.command("run-all", help="Run the complete Orthonome pipeline.")
+@click.pass_context
+def run_all_cmd(ctx):
+    """
+    Runs all Orthonome pipeline steps sequentially.
+    """
+    click.echo("Starting the complete Orthonome pipeline...")
+    
+    ctx.invoke(prepare_inputs_cmd)
+    ctx.invoke(run_diamond_blast_cmd)
+    ctx.invoke(run_sw_align_cmd)
+    ctx.invoke(process_pairwise_comparisons_cmd)
+    ctx.invoke(generate_phylogeny_cmd)
+    ctx.invoke(run_multimsoar_summarize_cmd)
+    
+    click.echo("Orthonome pipeline successfully completed!", fg="green")
 
 if __name__ == '__main__':
     main_group()
